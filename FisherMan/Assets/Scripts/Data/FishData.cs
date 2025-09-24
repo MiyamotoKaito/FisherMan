@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 魚のデータを定義するクラス
+/// </summary>
 [CreateAssetMenu(fileName = "FishData", menuName = "Data/FishData")]
 public class FishData : ScriptableObject
 {
@@ -13,10 +16,10 @@ public class FishData : ScriptableObject
     [SerializeField, Header("魚の売値")]
     private int _fishPrice;
     /// <summary>魚の魚影のサイズ</summary>
-    [SerializeField, Header("魚の魚影のサイズ")]
+    [SerializeField, Header("魚の魚影のサイズ"),Range(1,5)]
     private int _fishShadowSize;
     /// <summary>問題の難易度</summary>
-    [SerializeField, Header("問題の難易度")]
+    [SerializeField, Header("問題の難易度"),Range(1,5)]
     private int _fishLevel;
     public string FishName => _fishName;
     public int FishHp => _fishHp;
