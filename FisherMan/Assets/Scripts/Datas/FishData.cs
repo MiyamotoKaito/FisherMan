@@ -18,7 +18,6 @@ public class FishData : ScriptableObject
     /// <summary>問題の難易度</summary>
     [SerializeField, Header("問題の難易度")]
     private int _fishLevel;
-
     public string FishName => _fishName;
     public int FishHp => _fishHp;
     public int FishPrice => _fishPrice;
