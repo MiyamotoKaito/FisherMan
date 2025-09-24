@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "FishData", menuName = "EntityDatas/FishData")]
+[CreateAssetMenu(fileName = "FishData", menuName = "Data/FishData")]
 public class FishData : ScriptableObject
 {
     /// <summary>魚の名前</summary>
