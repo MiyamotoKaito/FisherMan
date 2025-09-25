@@ -14,6 +14,13 @@ public class GameManager : MonoBehaviour
         
     }
 }
+public enum GameStates
+{
+    Title,
+    Playing,
+    Pause
+}
+
 public enum PlayerStates
 {
     Idle,
