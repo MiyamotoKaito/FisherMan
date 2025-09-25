@@ -24,7 +24,7 @@ public enum GameStates
 public enum PlayerStates
 {
     Idle,
-    Move,
+    Walk,
     Fishing,
     Typing
 }
