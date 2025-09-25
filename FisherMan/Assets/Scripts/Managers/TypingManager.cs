@@ -14,6 +14,10 @@ public class TypingManager : MonoBehaviour
     /// key:魚のレベル, value:単語のリスト
     /// </summary>
     private Dictionary<int, List<string>> _words = new Dictionary<int, List<string>>();
+    /// <summary>お題に出されているワード</summary>
+    private string _targetWord;
+    /// <summary>入力中の文字位置</summary>
+    private int _currentIndex;
 
     private void Awake()
     {
@@ -33,8 +37,15 @@ public class TypingManager : MonoBehaviour
     /// </summary>
     private void LoadWords()
     {
-
+        TextAsset csv = Resources.Load<TextAsset>("Theme");
+        if (csv == null)
+        {
+            Debug.LogError("Theme.csvが見つかりませんResourcesの中にThemeファイルを置け");
+            return;
+        }
+        //一行ごとの文字配列に分割
+        string[] lines = csv.text.Split('\n');
+        //最初の文字列を扱わないためのフラグ
+        bool isFirstLine = true;
     }
-
-
 }
