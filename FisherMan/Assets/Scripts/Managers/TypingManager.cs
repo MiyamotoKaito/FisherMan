@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,6 +18,11 @@ public class TypingManager : MonoBehaviour
     private string _targetWord;
     /// <summary>入力中の文字位置</summary>
     private int _currentIndex;
+    /// <summary>餌に掛かっている魚のデータ</summary>
+    private FishData _currentFish;
+
+    /// <summary>タイピングが成功したときのイベント</summary>
+    public event Action<FishData, bool> OnTypingCompleted;
 
     private void Awake()
     {
@@ -100,7 +105,7 @@ public class TypingManager : MonoBehaviour
         }
 
         //ランダムに列の中の単語を返す
-        int index = Random.Range(0, _words[level].Count);
+        int index = UnityEngine.Random.Range(0, _words[level].Count);
         return _words[level][index];
     }
     /// <summary>
@@ -110,6 +115,8 @@ public class TypingManager : MonoBehaviour
     /// <param name="fishData"></param>
     private void StartTyping(string word, FishData fishData)
     {
-
+        _currentFish = fishData;
+        _currentIndex = 0;
+        _targetWord = GetRandomWord(fishData.FishLevel);
     }
 }
