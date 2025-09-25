@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Transactions;
+using UnityEngine;
 
 public class PlayerBase : MonoBehaviour
 {
@@ -22,6 +23,18 @@ public class PlayerBase : MonoBehaviour
     protected void BaseDisable()
     {
         _inputBuffer.Disable();
+    }
+    /// <summary>
+    /// 現在のステートを引数1のステートに切り替える
+    /// </summary>
+    /// <param name="newState"></param>
+    public void ChangeState(PlayerStates newState)
+    {
+        //もし現在のステートと同じだったら何もしない
+        if(CurrentState == newState) return;
+
+        Debug.Log($"{_currentState}状態から{newState}状態に変更");
+        _currentState = newState;
     }
 }
 public enum PlayerStates
