@@ -8,6 +8,7 @@ using UnityEngine;
 /// </summary>
 public class TypingManager : MonoBehaviour
 {
+    public static TypingManager Instance;
     /// <summary>
     /// レベルごとの単語リスト
     /// key:魚のレベル, value:単語のリスト
@@ -16,9 +17,9 @@ public class TypingManager : MonoBehaviour
 
     private void Awake()
     {
+
         LoadWords();
     }
-
     /// <summary>
     /// CSVから単語を読み込む
     /// </summary>

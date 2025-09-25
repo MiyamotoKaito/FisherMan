@@ -5,7 +5,9 @@
 /// </summary>
 public class GameManager : MonoBehaviour
 {
-    
+    public static GameManager Instance;
+    private TypingManager _typingManager;
+    private FishingManager _fishingManager;
 }
 public enum GameStates
 {
