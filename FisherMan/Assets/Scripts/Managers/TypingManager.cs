@@ -47,5 +47,60 @@ public class TypingManager : MonoBehaviour
         string[] lines = csv.text.Split('\n');
         //最初の文字列を扱わないためのフラグ
         bool isFirstLine = true;
+
+        foreach (string line in lines)
+        {
+            //何も入っていないまたは空白の文字だったらスキップ
+            if(string.IsNullOrWhiteSpace(line))continue;
+
+            string[] parts = line.Split(',');
+            //最初の列だったらスキップ
+            if (isFirstLine)
+            {
+                isFirstLine = false;
+                continue;
+            }
+
+            //最初の列が数値ではなかったらスキップ
+            if (!int.TryParse(parts[0], out int level)) continue;
+
+            //辞書の中に同じレベルの数値が無かったら辞書に新しく追加する
+            if (!_words.ContainsKey(level))
+            {
+                _words[level] = new List<string>();
+            }
+
+            //2列目以降の単語追加
+            for (int i = 1; i < parts.Length; i++)
+            {
+                //空白を取り除く
+                string word = parts[i].Trim();
+
+                //文字が入っていたら辞書に追加
+                if (string.IsNullOrWhiteSpace(word))
+                {
+                    _words[level].Add(word);
+                }
+            }
+        }
+        Debug.Log("csvの読み込み完了");
+    }
+    /// <summary>
+    /// 指定レベルの単語をランダムに取得
+    /// </summary>
+    /// <param name="level"></param>
+    /// <returns></returns>
+    private string GetRandomWord(int level)
+    {
+        //指定されたレベルに単語があるかチェックして、存在しない場合空文字を返す
+        if (!_words.ContainsKey(level) || _words[level].Count == 0)
+        {
+            //空文字を返す
+            return string.Empty;
+        }
+
+        //ランダムに列の中の単語を返す
+        int index = Random.Range(0, _words[level].Count);
+        return _words[level][index];
     }
 }
