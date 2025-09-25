@@ -44,10 +44,3 @@ public class PlayerBase : MonoBehaviour
 
     }
 }
-public enum PlayerStates
-{
-    Idle,
-    Move,
-    Fishing,
-    Typing
-}
