@@ -77,7 +77,7 @@ public class TypingManager : MonoBehaviour
                 string word = parts[i].Trim();
 
                 //文字が入っていたら辞書に追加
-                if (string.IsNullOrWhiteSpace(word))
+                if (!string.IsNullOrWhiteSpace(word))
                 {
                     _words[level].Add(word);
                 }
@@ -102,5 +102,14 @@ public class TypingManager : MonoBehaviour
         //ランダムに列の中の単語を返す
         int index = Random.Range(0, _words[level].Count);
         return _words[level][index];
+    }
+    /// <summary>
+    /// 出題開始
+    /// </summary>
+    /// <param name="word"></param>
+    /// <param name="fishData"></param>
+    private void StartTyping(string word, FishData fishData)
+    {
+
     }
 }
