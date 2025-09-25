@@ -16,14 +16,26 @@ public class FishData : ScriptableObject
     [SerializeField, Header("魚の売値"), Range(1, 10000)]
     private int _fishPrice;
     /// <summary>魚の魚影のサイズ</summary>
-    [SerializeField, Header("魚の魚影のサイズ"),Range(1,5)]
+    [SerializeField, Header("魚の魚影のサイズ"), Range(1, 5)]
     private int _fishShadowSize;
     /// <summary>問題の難易度</summary>
-    [SerializeField, Header("問題の難易度"),Range(1,5)]
+    [SerializeField, Header("問題の難易度"), Range(1, 5)]
     private int _fishLevel;
+    /// <summary>制限時間</summary>
+    [SerializeField, Header("制限時間"), Range(1, 120)]
+    private int _fishingTimer;
     public string FishName => _fishName;
-    public int FishHp => _fishHp;
+    public int FishHp
+    {
+        get { return _fishHp; }
+        set { _fishHp = value; }
+    }
     public int FishPrice => _fishPrice;
     public int FishShadowSize => _fishShadowSize;
     public int FishLevel => _fishLevel;
+    public int FishTimer
+    {
+        get { return _fishingTimer; }
+        set { _fishingTimer = value; }
+    }
 }
