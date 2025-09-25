@@ -7,8 +7,7 @@ public class PlayerBase : MonoBehaviour
     /// <summary>現在のプレイヤーの状態
     /// 初期はIdle
     /// </summary>
-    protected PlayerStates _currentState = PlayerStates.Idle;
-    public PlayerStates CurrentState => _currentState;
+    private PlayerStates _currentState = PlayerStates.Idle;
     /// <summary>
     /// 入力アクションを呼ぶ
     /// </summary>
@@ -31,10 +30,18 @@ public class PlayerBase : MonoBehaviour
     public void ChangeState(PlayerStates newState)
     {
         //もし現在のステートと同じだったら何もしない
-        if(CurrentState == newState) return;
+        if(_currentState == newState) return;
 
         Debug.Log($"{_currentState}状態から{newState}状態に変更");
         _currentState = newState;
+    }
+    /// <summary>
+    /// 派生クラスで状態による動きを制御するクラス
+    /// </summary>
+    /// <param name="state"></param>
+    protected virtual void OnStateEnter(PlayerStates state)
+    {
+
     }
 }
 public enum PlayerStates
