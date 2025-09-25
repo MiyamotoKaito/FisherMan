@@ -135,22 +135,7 @@ public class TypingManager : MonoBehaviour
         {
             _currentIndex++;
             //文字列を打ち終えたらダメージを与える
-            if (_currentIndex >= _targetWord.Length)
-            {
-                _currentFish.FishHp -= 10;
-                //釣り成功
-                if (_currentFish.FishHp <= 0)
-                {
-                    Reset();
-                    OnTypingCompleted?.Invoke(_currentFish, true);
-                }
-                else
-                {
-                    //HPが残っていたら新しい単語を出して釣り続行
-                    _currentIndex = 0;
-                    _targetWord = GetRandomWord(_currentFish.FishLevel);
-                }
-            }
+            Attack();
         }
         //文字が違かったらタイマーを減らす
         else
@@ -160,6 +145,28 @@ public class TypingManager : MonoBehaviour
             {
                 OnTypingCompleted?.Invoke(_currentFish, false);
                 Reset();
+            }
+        }
+    }
+    /// <summary>
+    /// 魚にダメージを与える
+    /// </summary>
+    private void Attack()
+    {
+        if (_currentIndex >= _targetWord.Length)
+        {
+            _currentFish.FishHp -= 10;
+            //釣り成功
+            if (_currentFish.FishHp <= 0)
+            {
+                Reset();
+                OnTypingCompleted?.Invoke(_currentFish, true);
+            }
+            else
+            {
+                //HPが残っていたら新しい単語を出して釣り続行
+                _currentIndex = 0;
+                _targetWord = GetRandomWord(_currentFish.FishLevel);
             }
         }
     }
