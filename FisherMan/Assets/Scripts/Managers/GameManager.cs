@@ -8,6 +8,18 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     private TypingManager _typingManager;
     private FishingManager _fishingManager;
+    private void Awake()
+    {
+        if (!Instance)
+        {
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+    }
 }
 public enum GameStates
 {
