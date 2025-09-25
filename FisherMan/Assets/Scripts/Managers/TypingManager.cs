@@ -56,7 +56,7 @@ public class TypingManager : MonoBehaviour
         foreach (string line in lines)
         {
             //何も入っていないまたは空白の文字だったらスキップ
-            if(string.IsNullOrWhiteSpace(line))continue;
+            if (string.IsNullOrWhiteSpace(line)) continue;
 
             string[] parts = line.Split(',');
             //最初の列だったらスキップ
@@ -118,5 +118,55 @@ public class TypingManager : MonoBehaviour
         _currentFish = fishData;
         _currentIndex = 0;
         _targetWord = GetRandomWord(fishData.FishLevel);
+    }
+    /// <summary>
+    /// タイピング
+    /// </summary>
+    /// <param name="input"></param>
+    private void InputChar(char input)
+    {
+        if (_currentFish == null || string.IsNullOrEmpty(_targetWord))
+        {
+            return;
+        }
+
+        //インプットされた文字が正しいかどうか
+        if (input == _targetWord[_currentIndex])
+        {
+            _currentIndex++;
+            //文字列を打ち終えたらダメージを与える
+            if (_currentIndex >= _targetWord.Length)
+            {
+                _currentFish.FishHp -= 10;
+                //釣り成功
+                if (_currentFish.FishHp <= 0)
+                {
+                    Reset();
+                    OnTypingCompleted?.Invoke(_currentFish, true);
+                }
+                else
+                {
+                    //HPが残っていたら新しい単語を出して釣り続行
+                    _currentIndex = 0;
+                    _targetWord = GetRandomWord(_currentFish.FishLevel);
+                }
+            }
+        }
+        //文字が違かったらタイマーを減らす
+        else
+        {
+            _currentFish.FishTimer -= 1;
+            if (_currentFish.FishTimer <= 0)
+            {
+                OnTypingCompleted?.Invoke(_currentFish, false);
+                Reset();
+            }
+        }
+    }
+    private void Reset()
+    {
+        _currentFish = null;
+        _currentIndex = 0;
+        _targetWord = string.Empty;
     }
 }
