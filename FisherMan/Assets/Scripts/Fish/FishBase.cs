@@ -9,6 +9,10 @@ public class FishBase : MonoBehaviour
     private int _level;
     private int _timer;
 
+    private void OnEnable()
+    {
+        SetParameter();
+    }
     /// <summary>
     /// 釣り竿を投げ入れたら魚に値を設定する
     /// </summary>
