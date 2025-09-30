@@ -19,7 +19,7 @@ public class FishData : ScriptableObject
     [SerializeField, Header("魚の魚影のサイズ"), Range(1, 5)]
     private int _fishShadowSize;
     /// <summary>問題の難易度</summary>
-    [SerializeField, Header("問題の難易度"), Range(1, 5)]
+    [SerializeField, Header("問題の難易度"), Range(1, 6)]
     private int _fishLevel;
     /// <summary>制限時間</summary>
     [SerializeField, Header("制限時間"), Range(1, 120)]
