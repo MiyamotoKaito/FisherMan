@@ -10,14 +10,21 @@ public class TypingManager : MonoBehaviour
 {
     public static TypingManager Instance;
     /// <summary>
-    /// レベルごとの単語リスト
+    /// レベルごとの単語辞書
     /// key:魚のレベル, value:単語のリスト
     /// </summary>
-    private Dictionary<int, List<WordPair>> _wordPairs = new Dictionary<int, List<WordPair>();
-    /// <summary>お題に出されているワード</summary>
+    private Dictionary<int, List<WordPair>> _wordPairs = new Dictionary<int, List<WordPair>>();
+    /// <summary>お題の複数入力パターン辞書</summary>
+    private Dictionary<string, List<string>> _otherPatterns = new Dictionary<string, List<string>>();
+    /// <summary>お題に出されているワード(表示用)</summary>
     private string _targetWord;
+    /// <summary>現在のローマ字配列</summary>
+    private List<char> _romajiChars = new List<char>();
     /// <summary>入力中の文字位置</summary>
     private int _currentIndex;
+    /// <summary>複数入力候補（例: "fu"と"hu"）</summary>
+    private List<string> _romajiOtherPatterns = new List<string>();
+
     /// <summary>餌に掛かっている魚のデータ</summary>
     private FishBase _currentFish;
     /// <summary>タイピングが成功したときのイベント</summary>
