@@ -25,17 +25,9 @@ public class FishData : ScriptableObject
     [SerializeField, Header("制限時間"), Range(1, 120)]
     private int _fishingTimer;
     public string FishName => _fishName;
-    public int FishHp
-    {
-        get { return _fishHp; }
-        set { _fishHp = value; }
-    }
+    public int FishHp => _fishHp;
     public int FishPrice => _fishPrice;
     public int FishShadowSize => _fishShadowSize;
     public int FishLevel => _fishLevel;
-    public int FishTimer
-    {
-        get { return _fishingTimer; }
-        set { _fishingTimer = value; }
-    }
+    public int FishingTimer => _fishingTimer;
 }
