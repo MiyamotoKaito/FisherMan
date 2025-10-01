@@ -54,6 +54,31 @@ public class TypingManager : MonoBehaviour
         }
         LoadWords();
     }
+    /// <summary>タイプ済み文字列を取得</summary>
+    private string GetTypedText()
+    {
+        if (_romajiChars.Count == 0) return string.Empty;
+
+        string text = string.Empty;
+        for (int i = 0; i < _romajiChars.Count && i < _currentIndex; i++)
+        {
+            if (_romajiChars[i] == '@')break;
+            text += _romajiChars[i];
+        }
+        return text;
+    }
+    /// <summary>未タイプ文字列を取得</summary>
+    private string GetUnTypedText()
+    {
+        if (_romajiChars.Count == 0) return string.Empty;
+        string text = string.Empty;
+        for (int i = _currentIndex; i < _romajiChars.Count; i++)
+        {
+            if (_romajiChars[i] == '@') break;
+            text += _romajiChars[i];
+        }
+        return text;
+    }
     /// <summary>
     /// CSVから単語を読み込む
     /// </summary>
