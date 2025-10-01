@@ -20,9 +20,24 @@ public class TypingManager : MonoBehaviour
     private int _currentIndex;
     /// <summary>餌に掛かっている魚のデータ</summary>
     private FishBase _currentFish;
-
     /// <summary>タイピングが成功したときのイベント</summary>
     public event Action<FishBase, bool> OnTypingCompleted;
+
+    /// <summary>
+    /// 単語に対応したローマ字のペア
+    /// </summary>
+    [System.Serializable]
+    public class WordPair
+    {
+        private string _word;//表示用
+        private string _romaji;//入力用
+
+        public WordPair(string word, string romaji)
+        {
+            _word = word;
+            _romaji = romaji;
+        }
+    }
 
     private void Awake()
     {
@@ -76,10 +91,12 @@ public class TypingManager : MonoBehaviour
             }
 
             //2列目以降の単語追加
-            for (int i = 1; i < parts.Length; i++)
+            //word1,romaji1,word2,romaji2...の形式で読み込む
+            for (int i = 1; i < parts.Length; i+= 2)
             {
                 //空白を取り除く
                 string word = parts[i].Trim();
+                string romaji = parts[i+1].Trim();
 
                 //文字が入っていたら辞書に追加
                 if (!string.IsNullOrWhiteSpace(word))
