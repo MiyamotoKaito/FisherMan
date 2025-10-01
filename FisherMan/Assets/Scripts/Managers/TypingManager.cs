@@ -19,10 +19,10 @@ public class TypingManager : MonoBehaviour
     /// <summary>入力中の文字位置</summary>
     private int _currentIndex;
     /// <summary>餌に掛かっている魚のデータ</summary>
-    private FishData _currentFish;
+    private FishBase _currentFish;
 
     /// <summary>タイピングが成功したときのイベント</summary>
-    public event Action<FishData, bool> OnTypingCompleted;
+    public event Action<FishBase, bool> OnTypingCompleted;
 
     private void Awake()
     {
@@ -112,12 +112,12 @@ public class TypingManager : MonoBehaviour
     /// 出題開始
     /// </summary>
     /// <param name="word"></param>
-    /// <param name="fishData"></param>
-    private void StartTyping(string word, FishData fishData)
+    /// <param name="fisbase"></param>
+    private void StartTyping(string word, FishBase fisbase)
     {
-        _currentFish = fishData;
+        _currentFish = fisbase;
         _currentIndex = 0;
-        _targetWord = GetRandomWord(fishData.FishLevel);
+        _targetWord = GetRandomWord(fisbase.Level);
     }
     /// <summary>
     /// タイピング
@@ -140,8 +140,8 @@ public class TypingManager : MonoBehaviour
         //文字が違かったらタイマーを減らす
         else
         {
-            _currentFish.FishTimer -= 1;
-            if (_currentFish.FishTimer <= 0)
+            _currentFish.Timer -= 1;
+            if (_currentFish.Timer <= 0)
             {
                 OnTypingCompleted?.Invoke(_currentFish, false);
                 Reset();
@@ -155,9 +155,9 @@ public class TypingManager : MonoBehaviour
     {
         if (_currentIndex >= _targetWord.Length)
         {
-            _currentFish.FishHp -= 10;
+            _currentFish.HP -= 10;
             //釣り成功
-            if (_currentFish.FishHp <= 0)
+            if (_currentFish.HP <= 0)
             {
                 Reset();
                 OnTypingCompleted?.Invoke(_currentFish, true);
@@ -166,7 +166,7 @@ public class TypingManager : MonoBehaviour
             {
                 //HPが残っていたら新しい単語を出して釣り続行
                 _currentIndex = 0;
-                _targetWord = GetRandomWord(_currentFish.FishLevel);
+                _targetWord = GetRandomWord(_currentFish.Level);
             }
         }
     }
