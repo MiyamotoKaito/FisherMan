@@ -57,12 +57,16 @@ public class TypingManager : MonoBehaviour
     /// <summary>タイプ済み文字列を取得</summary>
     private string GetTypedText()
     {
+        //ローマ字配列が空ならば空文字を返す
         if (_romajiChars.Count == 0) return string.Empty;
-
         string text = string.Empty;
+
+        //0番目から現在の入力位置(_romanIndex)まで繰り返す
         for (int i = 0; i < _romajiChars.Count && i < _currentIndex; i++)
         {
+            //@(終端記号)に到達したら終了
             if (_romajiChars[i] == '@')break;
+            // 文字を連結
             text += _romajiChars[i];
         }
         return text;
@@ -70,11 +74,17 @@ public class TypingManager : MonoBehaviour
     /// <summary>未タイプ文字列を取得</summary>
     private string GetUnTypedText()
     {
+        //ローマ字配列が空ならば空文字を返す
         if (_romajiChars.Count == 0) return string.Empty;
         string text = string.Empty;
+
+        //現在の入力位置(_romanIndex)から配列の末尾まで繰り返す
         for (int i = _currentIndex; i < _romajiChars.Count; i++)
         {
+            //@(終端記号)に到達したら終了
             if (_romajiChars[i] == '@') break;
+
+            //文字を連結
             text += _romajiChars[i];
         }
         return text;
