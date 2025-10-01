@@ -13,7 +13,7 @@ public class TypingManager : MonoBehaviour
     /// レベルごとの単語リスト
     /// key:魚のレベル, value:単語のリスト
     /// </summary>
-    private Dictionary<int, List<string>> _words = new Dictionary<int, List<string>>();
+    private Dictionary<int, List<WordPair>> _wordPairs = new Dictionary<int, List<WordPair>();
     /// <summary>お題に出されているワード</summary>
     private string _targetWord;
     /// <summary>入力中の文字位置</summary>
@@ -31,14 +31,9 @@ public class TypingManager : MonoBehaviour
     {
         private string _word;//表示用
         private string _romaji;//入力用
-
-        public WordPair(string word, string romaji)
-        {
-            _word = word;
-            _romaji = romaji;
-        }
+        public string Word => _word;
+        public string Romaji => _romaji;
     }
-
     private void Awake()
     {
         if (!Instance)
@@ -85,9 +80,9 @@ public class TypingManager : MonoBehaviour
             if (!int.TryParse(parts[0], out int level)) continue;
 
             //辞書の中に同じレベルの数値が無かったら辞書に新しく追加する
-            if (!_words.ContainsKey(level))
+            if (!_wordPairs.ContainsKey(level))
             {
-                _words[level] = new List<string>();
+                _wordPairs[level] = new List<WordPair>();
             }
 
             //2列目以降の単語追加
@@ -95,13 +90,13 @@ public class TypingManager : MonoBehaviour
             for (int i = 1; i < parts.Length; i+= 2)
             {
                 //空白を取り除く
-                string word = parts[i].Trim();
-                string romaji = parts[i+1].Trim();
+                string displayWord = parts[i].Trim();
+                string InputWord = parts[i+1].Trim();
 
                 //文字が入っていたら辞書に追加
-                if (!string.IsNullOrWhiteSpace(word))
+                if (!string.IsNullOrWhiteSpace(InputWord))
                 {
-                    _words[level].Add(word);
+                    _wordPairs[level].Add(new WordPair(displayWord, InputWord));
                 }
             }
         }
@@ -115,15 +110,15 @@ public class TypingManager : MonoBehaviour
     private string GetRandomWord(int level)
     {
         //指定されたレベルに単語があるかチェックして、存在しない場合空文字を返す
-        if (!_words.ContainsKey(level) || _words[level].Count == 0)
+        if (!_wordPairs.ContainsKey(level) || _wordPairs[level].Count == 0)
         {
             //空文字を返す
             return string.Empty;
         }
 
         //ランダムに列の中の単語を返す
-        int index = UnityEngine.Random.Range(0, _words[level].Count);
-        return _words[level][index];
+        int index = UnityEngine.Random.Range(0, _wordPairs[level].Count);
+        return _wordPairs[level][index];
     }
     /// <summary>
     /// 出題開始
