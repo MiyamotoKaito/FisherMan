@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static TypingManager;
 
 /// <summary>
 /// タイピングの管理を行うクラス
@@ -38,8 +39,16 @@ public class TypingManager : MonoBehaviour
     {
         private string _word;//表示用
         private string _romaji;//入力用
-        public string Word => _word;
-        public string Romaji => _romaji;
+        public string Word
+        {
+            get { return _word; }
+            set { _word = value; }
+        }
+        public string Romaji
+        {
+            get { return _romaji; }
+            set { _romaji = value; }
+        }
     }
     private void Awake()
     {
@@ -53,6 +62,7 @@ public class TypingManager : MonoBehaviour
             Destroy(this.gameObject);
         }
         LoadWords();
+        InitializeOtherPatterns();
     }
     /// <summary>タイプ済み文字列を取得</summary>
     private string GetTypedText()
@@ -88,6 +98,112 @@ public class TypingManager : MonoBehaviour
             text += _romajiChars[i];
         }
         return text;
+    }
+    /// <summary>
+    /// ローマ字文字列から複数の入力候補を生成
+    /// </summary>
+    /// <param name="romaji"></param>
+    /// <returns></returns>
+    private List<string> RomajiCandidatesGenerater(string romaji)
+    {
+        // 最初の候補として元のローマ字を小文字化して追加
+        List<string> candidates = new List<string> { romaji.ToLower() };
+
+        // ローマ字を分解して別解を探す
+        int i = 0;// 現在見ている文字位置
+        List<List<string>> allVariants = new List<List<string>>();// 各部分の別解リスト
+
+        // ローマ字文字列を先頭から1文字ずつ処理
+        while (i < romaji.Length)
+        {
+            bool found = false;// この位置で辞書の一致が見つかったかのフラグ
+
+            // 優先順位①　3文字一致を探す
+            if (i + 2 < romaji.Length)
+            {
+                //現在の位置から3文字を取得
+                string three = romaji.Substring(i, 3).ToLower();
+
+                //辞書に一致している文字がないかチェック
+                if (_otherPatterns.ContainsKey(three))
+                {
+                    //見つかったらその文字の別解リストを追加
+                    allVariants.Add(_otherPatterns[three]);
+                    i += 3;//3文字進める
+                    found = true;//見つかったフラグを立てる
+                }
+            }
+            // 優先順位②　2文字一致を探す
+            if (i + 1 < romaji.Length)
+            {
+                //現在の位置から2文字を取得
+                string two = romaji.Substring(i, 2).ToLower();
+
+                //辞書に一致している文字がないかチェック
+                if (_otherPatterns.ContainsKey(two))
+                {
+                    allVariants.Add(_otherPatterns[two]);
+                    i += 2;
+                    found = true;
+                }
+            }
+            // 優先順位③　1文字一致
+            if (!found)//3文字も2文字も見つからなかった場合
+            {
+                //現在の位置から1文字を取得
+                string one = romaji.Substring(i, 1).ToLower();
+
+                //辞書に一致している文字がないかチェック
+                if (_otherPatterns.ContainsKey(one))
+                {
+                    allVariants.Add(_otherPatterns[one]);
+                    found = true;
+                }
+                else
+                {
+                    //辞書にない文字はそのまま1文字として追加
+                    allVariants.Add(new List<string> { one });
+                }
+                i++;//1文字分進める
+            }
+        }
+        //分解した各部分の別解を組み合わせて、全パターンを追加
+        candidates = CombinationGenerator(allVariants);
+
+        //生成された全パターンを返す
+        return candidates;
+    }
+    /// <summary>
+    ///　文字の組み合わせを生成
+    /// </summary>
+    /// <param name="variants"></param>
+    /// <returns></returns>
+    private List<string> CombinationGenerator(List<List<string>> variants)
+    {
+        // 空リストの場合は空文字のリストを返す
+        if (variants.Count == 0) return new List<string> { "" };
+
+        // 結果を格納するリスト（初期は空文字で開始）
+        List<string> result = new List<string> { "" };
+
+        // 各部分の別解リストを順番に処理
+        foreach (var variantList in variants)
+        {
+            // 新しい結果を格納する一時リスト
+            List<string> newResult = new List<string>();
+
+            // 現在の結果の各文字列を取得
+            foreach (var current in result)
+            {
+                foreach (var variant in variantList)
+                {
+                    // 現在の文字列と別解を連結して追加
+                    newResult.Add(current + variant);
+                }
+            }
+            result = newResult;
+        }
+        return result;
     }
     /// <summary>
     /// CSVから単語を読み込む
@@ -129,16 +245,19 @@ public class TypingManager : MonoBehaviour
 
             //2列目以降の単語追加
             //word1,romaji1,word2,romaji2...の形式で読み込む
-            for (int i = 1; i < parts.Length; i += 2)
+            for (int i = 1; i < parts.Length - 1; i += 2)
             {
                 //空白を取り除く
                 string displayWord = parts[i].Trim();
                 string InputWord = parts[i + 1].Trim();
 
                 //文字が入っていたら辞書に追加
-                if (!string.IsNullOrWhiteSpace(InputWord))
+                if (!string.IsNullOrWhiteSpace(InputWord) && !string.IsNullOrEmpty(displayWord))
                 {
-                    _wordPairs[level].Add(new WordPair(displayWord, InputWord));
+                    WordPair wordPair = new WordPair();
+                    wordPair.Word = displayWord;
+                    wordPair.Romaji = InputWord;
+                    _wordPairs[level].Add(wordPair);
                 }
             }
         }
@@ -149,13 +268,13 @@ public class TypingManager : MonoBehaviour
     /// </summary>
     /// <param name="level"></param>
     /// <returns></returns>
-    private string GetRandomWord(int level)
+    private WordPair GetRandomWord(int level)
     {
         //指定されたレベルに単語があるかチェックして、存在しない場合空文字を返す
         if (!_wordPairs.ContainsKey(level) || _wordPairs[level].Count == 0)
         {
             //空文字を返す
-            return string.Empty;
+            return null;
         }
 
         //ランダムに列の中の単語を返す
@@ -172,6 +291,38 @@ public class TypingManager : MonoBehaviour
         _currentFish = fisbase;
         _currentIndex = 0;
         _targetWord = GetRandomWord(fisbase.Level);
+    }
+    public void StartTyping(FishBase fishBase)
+    {
+        if (fishBase == null)
+        {
+            Debug.Log("魚がまだ餌にかかってない");
+            return;
+        }
+
+        _currentFish = fishBase;
+        
+    }
+    private void InitializeWord()
+    {
+        if (_currentFish == null) return;
+
+        WordPair wordPair = new WordPair();
+        if (wordPair == null)
+        {
+            Debug.Log($"レベル{_currentFish.Level}の単語が取得できませんでした");
+            Reset();
+            return;
+        }
+
+        _targetWord = wordPair.Word;
+
+        //CSVに書かれたローマ字から複数の候補を生成
+        _romajiOtherPatterns = RomajiCandidatesGenerater(wordPair.Romaji);
+    }
+    private void OnGUI()
+    {
+        
     }
     /// <summary>
     /// タイピング
