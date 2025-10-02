@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class FishBase : MonoBehaviour
+public class FishBase
 {
     private string _name;
     private int _hp;
@@ -28,6 +28,10 @@ public class FishBase : MonoBehaviour
     {
         SetParameter();
     }
+    public FishBase ()
+    {
+
+    }
     /// <summary>
     /// 釣り竿を投げ入れたら魚に値を設定する
     /// </summary>
@@ -41,5 +45,4 @@ public class FishBase : MonoBehaviour
         _level = fishData.FishLevel;
         _timer = fishData.FishingTimer;
     }
-
 }
