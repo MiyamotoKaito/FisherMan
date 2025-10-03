@@ -23,14 +23,12 @@ public class FishBase
         get { return _timer; }
         set { _timer = value; }
     }
-
+    /// <summary>
+    /// 魚影が現れたら魚の値を設定する
+    /// </summary>
     private void OnEnable()
     {
         SetParameter();
-    }
-    public FishBase ()
-    {
-
     }
     /// <summary>
     /// 釣り竿を投げ入れたら魚に値を設定する
