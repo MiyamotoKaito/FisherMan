@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using UnityEngine;
-using UnityEngine.InputSystem.Layouts;
-using UnityEngine.Rendering;
-using static TypingManager;
 
 /// <summary>
 /// タイピングの管理を行うクラス
@@ -36,6 +32,9 @@ public class TypingManager : MonoBehaviour
     /// <summary>タイピングが成功したときのイベント</summary>
     public event Action<FishBase, bool> OnTypingCompleted;
 
+    // UIManager用プロパティ
+    public string CurrentDisplayWord => _targetWord;
+    public FishBase CurrentFish => _currentFish;
     /// <summary>
     /// 単語に対応したローマ字のペア
     /// </summary>
@@ -139,7 +138,7 @@ public class TypingManager : MonoBehaviour
                 }
             }
             // 優先順位②　2文字一致を探す
-            if (i + 1 < romaji.Length)
+            if (i + 1 < romaji.Length && !found)
             {
                 //現在の位置から2文字を取得
                 string two = romaji.Substring(i, 2).ToLower();
@@ -308,7 +307,7 @@ public class TypingManager : MonoBehaviour
     {
         if (_currentFish == null) return;
 
-        WordPair wordPair = new WordPair();
+        WordPair wordPair = GetRandomWord(_currentFish.Level);
         if (wordPair == null)
         {
             Debug.Log($"レベル{_currentFish.Level}の単語が取得できませんでした");
@@ -408,6 +407,11 @@ public class TypingManager : MonoBehaviour
         else
         {
             bool escaped = false;
+            _currentFish.Timer -= 1;
+            if (_currentFish.Timer <= 0)
+            {
+                escaped = true;
+            }
 
             if (escaped)
             {
@@ -420,21 +424,23 @@ public class TypingManager : MonoBehaviour
     /// </summary>
     private void Attack()
     {
-        if (_currentIndex >= _targetWord.Length)
+        bool isCaught = false;
+        _currentFish.HP -= 10;
+        if (_currentFish.HP <= 0)
         {
-            _currentFish.HP -= 10;
-            //釣り成功
-            if (_currentFish.HP <= 0)
-            {
-                Reset();
-                OnTypingCompleted?.Invoke(_currentFish, true);
-            }
-            //HPが残っていたら新しい単語を出して釣り続行
-            else
-            {
-                _currentIndex = 0;
-                InitializeWord();
-            }
+            isCaught = true;
+        }
+        //釣り成功
+        if (isCaught)
+        {
+            Reset();
+            OnTypingCompleted?.Invoke(_currentFish, true);
+        }
+        //HPが残っていたら新しい単語を出して釣り続行
+        else
+        {
+            _currentIndex = 0;
+            InitializeWord();
         }
     }
     private void Reset()
