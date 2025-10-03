@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using UnityEngine;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.Rendering;
 using static TypingManager;
 
 /// <summary>
@@ -23,11 +26,13 @@ public class TypingManager : MonoBehaviour
     private List<char> _romajiChars = new List<char>();
     /// <summary>入力中の文字位置</summary>
     private int _currentIndex;
+    private List<int> _candidateIndices = new List<int>();
     /// <summary>複数入力候補（例: "fu"と"hu"）</summary>
     private List<string> _romajiOtherPatterns = new List<string>();
 
     /// <summary>餌に掛かっている魚のデータ</summary>
     private FishBase _currentFish;
+    private int _mitakeTimer = 1;
     /// <summary>タイピングが成功したときのイベント</summary>
     public event Action<FishBase, bool> OnTypingCompleted;
 
@@ -284,14 +289,7 @@ public class TypingManager : MonoBehaviour
     /// <summary>
     /// 出題開始
     /// </summary>
-    /// <param name="word"></param>
     /// <param name="fisbase"></param>
-    private void StartTyping(string word, FishBase fisbase)
-    {
-        _currentFish = fisbase;
-        _currentIndex = 0;
-        _targetWord = GetRandomWord(fisbase.Level);
-    }
     public void StartTyping(FishBase fishBase)
     {
         if (fishBase == null)
@@ -301,8 +299,11 @@ public class TypingManager : MonoBehaviour
         }
 
         _currentFish = fishBase;
-        
+        InitializeWord();
     }
+    /// <summary>
+    /// 単語の初期化
+    /// </summary>
     private void InitializeWord()
     {
         if (_currentFish == null) return;
@@ -317,39 +318,100 @@ public class TypingManager : MonoBehaviour
 
         _targetWord = wordPair.Word;
 
-        //CSVに書かれたローマ字から複数の候補を生成
+        //CSVに書かれたローマ字を分解し複数の候補を生成
         _romajiOtherPatterns = RomajiCandidatesGenerater(wordPair.Romaji);
+
+        _romajiChars.Clear();
+        _currentIndex = 0;
+
+        string firstCandidate = _romajiOtherPatterns[0];
+        foreach (char c in firstCandidate)
+        {
+            _romajiChars.Add(c);
+        }
+        _romajiChars.Add('@');
+
+        //各候補の位置を初期化
+        _candidateIndices.Clear();
+        foreach (var candidate in _romajiOtherPatterns)
+        {
+            _candidateIndices.Add(0);
+        }
     }
+    /// <summary>
+    /// キー入力処理
+    /// </summary>
     private void OnGUI()
     {
-        
+        if (Event.current.type == EventType.KeyDown)
+        {
+            char inputChar = GetCharFromKeyCode(Event.current.keyCode);
+            if (inputChar != '\0')
+            {
+                InputChar(inputChar);
+            }
+        }
     }
     /// <summary>
     /// タイピング
     /// </summary>
     /// <param name="input"></param>
-    private void InputChar(char input)
+    private void InputChar(char inputChar)
     {
-        if (_currentFish == null || string.IsNullOrEmpty(_targetWord))
-        {
-            return;
-        }
+        inputChar = char.ToLower(inputChar);
 
-        //インプットされた文字が正しいかどうか
-        if (input == _targetWord[_currentIndex])
+        bool isCorrect = false;
+        int matchedCandidateIndex = -1;
+
+        for (int i = 0; i < _romajiOtherPatterns.Count; i++)
+        {
+            string candidate = _romajiOtherPatterns[i];
+            int currentIndex = _candidateIndices[i];
+
+            if (currentIndex < candidate.Length && candidate[currentIndex] == inputChar)
+            {
+                isCorrect = true;
+                matchedCandidateIndex = i;
+                break;
+            }
+        }
+        if (isCorrect)
         {
             _currentIndex++;
-            //文字列を打ち終えたらダメージを与える
-            Attack();
+            _candidateIndices[matchedCandidateIndex]++;
+
+            for (int i = _romajiOtherPatterns.Count - 1; i >= 0; i--)
+            {
+                string candidate = _romajiOtherPatterns[i];
+                int currentIndex = _candidateIndices[i];
+
+                if (currentIndex >= candidate.Length || candidate[currentIndex - 1] != inputChar)
+                {
+                    _romajiOtherPatterns.RemoveAt(i);
+                    _candidateIndices.RemoveAt(i);
+                }
+            }
+            bool complete = false;
+            for (int i = 0; i < _romajiOtherPatterns.Count; i++)
+            {
+                if (_candidateIndices[i] >= _romajiOtherPatterns[i].Length)
+                {
+                    complete = true;
+                    break;
+                }
+            }
+            if (complete)
+            {
+                Attack();
+            }
         }
-        //文字が違かったらタイマーを減らす
         else
         {
-            _currentFish.Timer -= 1;
-            if (_currentFish.Timer <= 0)
+            bool escaped = false;
+
+            if (escaped)
             {
                 OnTypingCompleted?.Invoke(_currentFish, false);
-                Reset();
             }
         }
     }
@@ -367,11 +429,11 @@ public class TypingManager : MonoBehaviour
                 Reset();
                 OnTypingCompleted?.Invoke(_currentFish, true);
             }
+            //HPが残っていたら新しい単語を出して釣り続行
             else
             {
-                //HPが残っていたら新しい単語を出して釣り続行
                 _currentIndex = 0;
-                _targetWord = GetRandomWord(_currentFish.Level);
+                InitializeWord();
             }
         }
     }
@@ -382,7 +444,47 @@ public class TypingManager : MonoBehaviour
         _targetWord = string.Empty;
     }
     /// <summary>
-    /// ローマ字の別解パターンを初期化
+    /// KeyCodeを文字に変換
+    /// </summary>
+    private char GetCharFromKeyCode(KeyCode keyCode)
+    {
+        switch (keyCode)
+        {
+            case KeyCode.A: return 'a';
+            case KeyCode.B: return 'b';
+            case KeyCode.C: return 'c';
+            case KeyCode.D: return 'd';
+            case KeyCode.E: return 'e';
+            case KeyCode.F: return 'f';
+            case KeyCode.G: return 'g';
+            case KeyCode.H: return 'h';
+            case KeyCode.I: return 'i';
+            case KeyCode.J: return 'j';
+            case KeyCode.K: return 'k';
+            case KeyCode.L: return 'l';
+            case KeyCode.N: return 'n';
+            case KeyCode.M: return 'm';
+            case KeyCode.O: return 'o';
+            case KeyCode.P: return 'p';
+            case KeyCode.Q: return 'q';
+            case KeyCode.R: return 'r';
+            case KeyCode.S: return 's';
+            case KeyCode.T: return 't';
+            case KeyCode.U: return 'u';
+            case KeyCode.V: return 'v';
+            case KeyCode.W: return 'w';
+            case KeyCode.X: return 'x';
+            case KeyCode.Y: return 'y';
+            case KeyCode.Z: return 'z';
+            case KeyCode.Question: return '?';
+            case KeyCode.Exclaim: return '!';
+            case KeyCode.Minus: return '-';
+            case KeyCode.Equals: return '=';
+            default: return '\0';
+        }
+    }
+    /// <summary>
+    /// ローマ字の別解パターンを辞書に格納
     /// </summary>
     private void InitializeOtherPatterns()
     {
